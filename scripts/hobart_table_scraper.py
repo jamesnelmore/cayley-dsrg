@@ -15,7 +15,7 @@ Comment conventions on the page:
   anything else (T*/M*)  -> a construction, so the graph is known
   empty                  -> no information in that row (look at the partner)
 
-Usage: python3 dsrg_to_csv.py [-o dsrg.csv] [--html cached.html]
+Usage: python3 hobart_open_table_scraper.py [-o dsrg.csv] [--html cached.html]
 """
 
 import argparse
