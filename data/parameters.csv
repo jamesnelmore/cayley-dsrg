@@ -231,13 +231,13 @@ n,k,t,lambda,mu,status
 52,25,13,12,12,known
 54,7,3,0,1,impossible
 54,8,3,2,1,known
-54,10,4,1,2,open
-54,11,4,3,2,open
+54,10,4,1,2,known
+54,11,4,3,2,known
 54,13,9,0,4,impossible
 54,14,12,2,4,open
 54,15,5,2,5,open
 54,15,13,4,4,open
-54,16,7,4,5,open
+54,16,7,4,5,known
 54,16,12,6,4,known
 54,17,7,6,5,known
 54,17,9,8,4,known
