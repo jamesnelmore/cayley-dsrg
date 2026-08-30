@@ -40,7 +40,8 @@ CREATE TABLE searches (
     search_id   INTEGER PRIMARY KEY,
     group_id    INTEGER NOT NULL REFERENCES groups(group_id),
     param_id    INTEGER NOT NULL REFERENCES parameters(param_id),
-    method      TEXT    NOT NULL,   -- ilp | exhaustive | rrhc
+    method      TEXT    NOT NULL,   -- exhaustive | rrhc-{restarts} | ilp-{minutes}
+                                    -- (or bare rrhc/ilp for pre-budget-tracking rows)
     outcome     TEXT    NOT NULL,   -- found | infeasible_proof | empty_proof
                                     -- | timeout | heuristic_none
     is_proof    INTEGER NOT NULL,   -- 1 = definitively resolves this (group,param)

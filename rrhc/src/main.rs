@@ -130,10 +130,10 @@ fn run(cli: Cli) -> Result<(), BoxError> {
                 random_restart_hill_climb(group, &params, restarts, seed, progress)
             })?;
             if let Some(path) = args.dpds_out.as_deref() {
-                write_dpds(path, args.n, args.k, args.t, args.lambda, args.mu, &results)?;
+                write_dpds(path, args.n, args.k, args.t, args.lambda, args.mu, restarts, &results)?;
             }
             if let Some(path) = args.searches_out.as_deref() {
-                write_searches(path, args.n, args.k, args.t, args.lambda, args.mu, &results)?;
+                write_searches(path, args.n, args.k, args.t, args.lambda, args.mu, restarts, &results)?;
             }
             Ok(())
         }
@@ -235,6 +235,11 @@ where
 /// the equation. The parameters are the same for every row (one invocation is
 /// one parameter set). `members` is 1-based (per data/schema.md's `Elements`-order
 /// encoding); `results` is assumed already sorted by id.
+///
+/// `source_method` carries the restart budget (`rrhc-{restarts}`), same as
+/// `write_searches` -- a bare `rrhc` can't tell a fresh run's construction apart
+/// from an older one at a different budget, which is exactly what let one
+/// ingest silently erase the other.
 #[allow(clippy::too_many_arguments)]
 fn write_dpds(
     path: &Path,
@@ -243,6 +248,7 @@ fn write_dpds(
     t: usize,
     lambda: usize,
     mu: usize,
+    restarts: usize,
     results: &[(u64, ScoredSet)],
 ) -> Result<(), BoxError> {
     let mut w = BufWriter::new(File::create(path)?);
@@ -254,7 +260,11 @@ fn write_dpds(
                 .iter()
                 .map(|e| (e + 1).to_string())
                 .collect();
-            writeln!(w, "{n},{k},{t},{lambda},{mu},{id},{},rrhc", members.join(" "))?;
+            writeln!(
+                w,
+                "{n},{k},{t},{lambda},{mu},{id},{},rrhc-{restarts}",
+                members.join(" ")
+            )?;
         }
     }
     w.flush()?;
@@ -266,6 +276,12 @@ fn write_dpds(
 /// (`n,k,t,lambda,mu,lib_id,method,outcome,num_dpds`). The parameters are the
 /// same for every row (one invocation is one parameter set); `results` is
 /// assumed already sorted by id.
+///
+/// `method` encodes the restart budget as `rrhc-{restarts}` (e.g. `rrhc-10000`)
+/// rather than a bare `rrhc`, since budget is part of what identifies a search:
+/// two budgets on the same (group, parameter set) are different experiments,
+/// not a repeat of the same one, and searches.csv keys rows on `method` -- this
+/// is what lets both survive ingestion instead of one masking the other.
 #[allow(clippy::too_many_arguments)]
 fn write_searches(
     path: &Path,
@@ -274,6 +290,7 @@ fn write_searches(
     t: usize,
     lambda: usize,
     mu: usize,
+    restarts: usize,
     results: &[(u64, ScoredSet)],
 ) -> Result<(), BoxError> {
     let mut w = BufWriter::new(File::create(path)?);
@@ -288,7 +305,7 @@ fn write_searches(
         };
         writeln!(
             w,
-            "{n},{k},{t},{lambda},{mu},{id},rrhc,{outcome},{num_dpds}"
+            "{n},{k},{t},{lambda},{mu},{id},rrhc-{restarts},{outcome},{num_dpds}"
         )?;
     }
     w.flush()?;

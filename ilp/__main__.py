@@ -199,6 +199,15 @@ def _outcome(result: dict) -> str | None:
     return None
 
 
+def _method(args: argparse.Namespace) -> str:
+    """The searches.method label for this run: ``ilp-{minutes}``, or a bare
+    ``ilp`` when no time limit was given.
+    """
+    if args.time_limit is None:
+        return "ilp"
+    return f"ilp-{args.time_limit / 60:g}"
+
+
 def _write_csvs(results: list[dict], args: argparse.Namespace) -> None:
     """Write dpds/searches CSVs in the schema `rrhc` and data/ use.
 
@@ -206,6 +215,7 @@ def _write_csvs(results: list[dict], args: argparse.Namespace) -> None:
     what rrhc writes (``e + 1``) and what verify_data.py checks; the solver
     reports 0-based positions, hence the shift.
     """
+    method = _method(args)
     if args.searches_out is not None:
         with args.searches_out.open("w", newline="") as f:
             w = csv.writer(f)
@@ -219,8 +229,15 @@ def _write_csvs(results: list[dict], args: argparse.Namespace) -> None:
                     )
                     continue
                 w.writerow([
-                    r["n"], r["k"], r["t"], r["lambda"], r["mu"], r["lib_id"],
-                    "ilp", outcome, 1 if outcome == "found" else 0,
+                    r["n"],
+                    r["k"],
+                    r["t"],
+                    r["lambda"],
+                    r["mu"],
+                    r["lib_id"],
+                    method,
+                    outcome,
+                    1 if outcome == "found" else 0,
                 ])
         print(f"Wrote {args.searches_out}", file=sys.stderr)
 
@@ -233,8 +250,14 @@ def _write_csvs(results: list[dict], args: argparse.Namespace) -> None:
                     continue
                 members = sorted(i + 1 for i in r["connection_set_original_indices"])
                 w.writerow([
-                    r["n"], r["k"], r["t"], r["lambda"], r["mu"], r["lib_id"],
-                    " ".join(str(i) for i in members), "ilp",
+                    r["n"],
+                    r["k"],
+                    r["t"],
+                    r["lambda"],
+                    r["mu"],
+                    r["lib_id"],
+                    " ".join(str(i) for i in members),
+                    method,
                 ])
         print(f"Wrote {args.dpds_out}", file=sys.stderr)
 

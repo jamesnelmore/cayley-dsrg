@@ -95,6 +95,18 @@ def main() -> None:
     p.add_argument(
         "--apply", action="store_true", help="write the new rows. Dry run is default behavior"
     )
+    p.add_argument(
+        "--method",
+        help=(
+            "Override every scanned row's method/source_method column with this "
+            "value before keying/merging, e.g. rrhc-10000 or ilp-30. For output "
+            "written before those columns encoded their budget (a bare rrhc/ilp) "
+            "-- current rrhc/ilp writers already label their own rows and need no "
+            "override. Applied to both searches.method and dpds.source_method: a "
+            "bare tag on dpds can't tell one run's construction from another's, "
+            "which is exactly what let one ingest silently erase another's."
+        ),
+    )
     args = p.parse_args()
 
     have_searches, have_dpds = load_existing(args.merge_dir)
@@ -102,10 +114,15 @@ def main() -> None:
     search_rows = [
         r for f in sorted(args.data_dir.glob("searches*.csv")) for r in read_rows(f, SEARCH_COLS)
     ]
+    if args.method:
+        for r in search_rows:
+            r["method"] = args.method
     dpds_rows = []
     for f in sorted(args.data_dir.glob("dpds*.csv")):
         for row in read_rows(f, DPDS_COLS):
             row["members"] = canon_members(row["members"])
+            if args.method:
+                row["source_method"] = args.method
             dpds_rows.append(row)
 
     new_searches = new_only(search_rows, SEARCH_KEY, have_searches)
