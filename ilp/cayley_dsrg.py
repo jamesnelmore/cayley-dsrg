@@ -621,32 +621,16 @@ def solve_cayley_dsrg(
 # ── Multi-group search ───────────────────────────────────────────────────────
 
 
-def search_all_groups(
-    n: int,
-    k: int,
-    t: int,
-    lambda_param: int,
-    mu: int,
-    *,
-    use_aut_pruning: bool = True,
-    undirected: bool = False,
-    threads: int = -1,
-    time_limit: float | None = None,
-    quiet: bool = False,
-    gurobi_params: dict[str, str] | None = None,
-    include_abelian: bool = False,
-) -> list[dict]:
-    """Search for Cayley DSRGs across all groups of order n.
-
-    Uses GAP to enumerate groups, then solves the ILP for each.
+def list_groups(n: int, *, include_abelian: bool = False) -> list[tuple[int, str]]:
+    """Enumerate the groups of order n via GAP.
 
     Args:
-        include_abelian: If True, search abelian groups too.
+        n: Group order.
+        include_abelian: If True, list abelian groups too.
 
     Returns:
-        List of result dicts, one per group attempted.
+        List of ``(lib_id, structure_description)`` in GAP library order.
     """
-    # Get the list of group library IDs from GAP.
     abelian_filter = "" if include_abelian else "not IsAbelian(G) and "
     gap_script = f"""
 LoadPackage("smallgrp");;
@@ -676,6 +660,35 @@ QUIT;
         parts = line.strip().split(maxsplit=1)
         if parts:
             groups.append((int(parts[0]), parts[1] if len(parts) > 1 else "?"))
+    return groups
+
+
+def search_all_groups(
+    n: int,
+    k: int,
+    t: int,
+    lambda_param: int,
+    mu: int,
+    *,
+    use_aut_pruning: bool = True,
+    undirected: bool = False,
+    threads: int = -1,
+    time_limit: float | None = None,
+    quiet: bool = False,
+    gurobi_params: dict[str, str] | None = None,
+    include_abelian: bool = False,
+) -> list[dict]:
+    """Search for Cayley DSRGs across all groups of order n.
+
+    Uses GAP to enumerate groups, then solves the ILP for each.
+
+    Args:
+        include_abelian: If True, search abelian groups too.
+
+    Returns:
+        List of result dicts, one per group attempted.
+    """
+    groups = list_groups(n, include_abelian=include_abelian)
 
     results: list[dict] = []
     for lib_id, group_name in groups:

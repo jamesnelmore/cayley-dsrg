@@ -30,6 +30,7 @@ Examples::
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 from pathlib import Path
 import sys
@@ -84,6 +85,26 @@ def _add_solver_opts(p: argparse.ArgumentParser) -> None:
         "--json", action="store_true", help="Print result(s) as JSON instead of a summary table"
     )
     p.add_argument("--output", type=Path, default=None, help="Write JSON result(s) to this file")
+    p.add_argument(
+        "--dpds-out",
+        type=Path,
+        default=None,
+        help=(
+            "Write the found connection sets to a dpds-schema CSV "
+            "(n,k,t,lambda,mu,lib_id,members,source_method); members 1-based per "
+            "data/schema.md. One invocation is a single order n, so the file drops "
+            "straight into data/dpds/nNNN.csv"
+        ),
+    )
+    p.add_argument(
+        "--searches-out",
+        type=Path,
+        default=None,
+        help=(
+            "Write one searches-schema row per swept group -- including the negatives -- "
+            "to a CSV (n,k,t,lambda,mu,lib_id,method,outcome,num_dpds)"
+        ),
+    )
 
 
 def _parse_gurobi_params(items: list[str] | None) -> dict[str, str]:
@@ -157,8 +178,71 @@ def _print_summary(result: dict) -> None:
         print(f"  connection set S = {cs}")
 
 
+def _outcome(result: dict) -> str | None:
+    """Map a solver status onto a searches-schema outcome.
+
+    The model has a constant objective, so it asks a pure feasibility question:
+    a solve that produced a connection set has answered it even if it stopped on
+    the time limit, and counts as ``found`` rather than ``timeout``.
+
+    Returns:
+        A searches.outcome value, or None for a solve that recorded no search
+        (an error, or an unrecognised status).
+    """
+    if result.get("connection_set_original_indices"):
+        return "found"
+    status = result.get("status")
+    if status == "Infeasible":
+        return "infeasible_proof"
+    if status in {"TimeLimit", "Suboptimal"}:
+        return "timeout"
+    return None
+
+
+def _write_csvs(results: list[dict], args: argparse.Namespace) -> None:
+    """Write dpds/searches CSVs in the schema `rrhc` and data/ use.
+
+    ``members`` is 1-based into ``Elements(G)`` and strictly ascending, matching
+    what rrhc writes (``e + 1``) and what verify_data.py checks; the solver
+    reports 0-based positions, hence the shift.
+    """
+    if args.searches_out is not None:
+        with args.searches_out.open("w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["n", "k", "t", "lambda", "mu", "lib_id", "method", "outcome", "num_dpds"])
+            for r in results:
+                outcome = _outcome(r)
+                if outcome is None:
+                    print(
+                        f"  skipping g{r['lib_id']}: no search recorded ({r['status']})",
+                        file=sys.stderr,
+                    )
+                    continue
+                w.writerow([
+                    r["n"], r["k"], r["t"], r["lambda"], r["mu"], r["lib_id"],
+                    "ilp", outcome, 1 if outcome == "found" else 0,
+                ])
+        print(f"Wrote {args.searches_out}", file=sys.stderr)
+
+    if args.dpds_out is not None:
+        with args.dpds_out.open("w", newline="") as f:
+            w = csv.writer(f)
+            w.writerow(["n", "k", "t", "lambda", "mu", "lib_id", "members", "source_method"])
+            for r in results:
+                if _outcome(r) != "found":
+                    continue
+                members = sorted(i + 1 for i in r["connection_set_original_indices"])
+                w.writerow([
+                    r["n"], r["k"], r["t"], r["lambda"], r["mu"], r["lib_id"],
+                    " ".join(str(i) for i in members), "ilp",
+                ])
+        print(f"Wrote {args.dpds_out}", file=sys.stderr)
+
+
 def _emit(results: list[dict], args: argparse.Namespace) -> None:
     """Emit results as JSON and/or a summary, per CLI flags."""
+    _write_csvs(results, args)
+
     if args.output is not None:
         payload = results[0] if len(results) == 1 else results
         args.output.write_text(json.dumps(payload, indent=2) + "\n")

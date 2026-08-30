@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=rrhc
 #SBATCH --output=rrhc-out/slurm-%A_%a.out
-#SBATCH --time=02:00:00
+#SBATCH --time=12:00:00
 #SBATCH --cpus-per-task=32
 
 # One rrhc DSRG task: sweep every nonabelian group of a single parameter set and

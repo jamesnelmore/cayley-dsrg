@@ -101,3 +101,5 @@ Thumbs.db
 # ILP sweep outputs
 # =============================================================================
 srg_*.json
+# ILP sweep outputs: dpds/searches CSVs and slurm logs.
+ilp-out/
