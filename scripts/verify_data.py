@@ -32,6 +32,11 @@ from tqdm import tqdm
 SEARCH_METHODS: set[str] = {"exhaustive", "ilp", "rrhc"}
 
 
+def is_search_method(m: str) -> bool:
+    """Budget-tagged methods (ilp-30, ilp-720, rrhc-10000, ...) count as their base method."""
+    return m.split("-")[0] in SEARCH_METHODS
+
+
 class Construction(TypedDict):
     """One dpds row: its location, parameters, group, and connection set."""
 
@@ -175,7 +180,7 @@ def check_num_dpds(d: Path, cons: list[Construction]) -> list[Problem]:
                 problems.append((key, m, want, got))
     for key, counts in permethod.items():
         for m, got in counts.items():
-            if m in SEARCH_METHODS and (key, m) not in seen:
+            if is_search_method(m) and (key, m) not in seen:
                 problems.append((key, m, None, got))
     return problems
 

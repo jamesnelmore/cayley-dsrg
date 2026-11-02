@@ -4,25 +4,24 @@ version = "0.1.0"
 description = "Collection of directed partial difference sets and DPDS search tools"
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
-authors = [
-    {name = "James Elmore", email = "email@jameselmore.org"},
-]
+authors = [{ name = "James Elmore", email = "email@jameselmore.org" }]
 dependencies = [
-    "gurobipy>=13.0.1",
-    "numpy>=2.3.2",
-    "openpyxl>=3.1.5",
-    "pandas>=2.2",
-    "torch>=2.9.0",
-    "tqdm>=4.67.1",
+  "gurobipy>=13.0.1",
+  "matplotlib>=3.11.1",
+  "numpy>=2.3.2",
+  "openpyxl>=3.1.5",
+  "pandas>=2.2",
+  "torch>=2.9.0",
+  "tqdm>=4.67.1",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pyright>=1.1.404",
-    "ruff>=0.12.10",
-    "marimo>=0.23.1",
-    "datasette>=0.65.2",
-    "matplotlib>=3.9"
+  "pyright>=1.1.404",
+  "ruff>=0.12.10",
+  "marimo>=0.25.2",
+  "datasette>=0.65.2",
+  "matplotlib>=3.9",
 ]
 
 [build-system]
@@ -35,48 +34,46 @@ include = ["exhaustive_search*", "ilp*"]
 [tool.ruff]
 line-length = 99
 target-version = "py313"
-preview = true  # Enable preview features for DOC rules
-exclude = [
-    ".venv/**",
-]
+preview = true           # Enable preview features for DOC rules
+exclude = [".venv/**"]
 
 [tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort (import sorting)
-    "N",   # pep8-naming
-    "UP",  # pyupgrade
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "SIM", # flake8-simplify
-    "RET", # flake8-return
-    "ARG", # flake8-unused-arguments
-    "PTH", # flake8-use-pathlib
-    "ERA", # eradicate (remove commented code)
-    "PL",  # pylint
-    "RUF", # ruff-specific rules
-    "D",   # pydocstyle - docstring conventions
-    "DOC", # flake8-docstrings
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort (import sorting)
+  "N",   # pep8-naming
+  "UP",  # pyupgrade
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "SIM", # flake8-simplify
+  "RET", # flake8-return
+  "ARG", # flake8-unused-arguments
+  "PTH", # flake8-use-pathlib
+  "ERA", # eradicate (remove commented code)
+  "PL",  # pylint
+  "RUF", # ruff-specific rules
+  "D",   # pydocstyle - docstring conventions
+  "DOC", # flake8-docstrings
 ]
 
 ignore = [
-    "PLR0913", # Too many arguments to function call
-    "PLR0914", # Too many local variables
-    "PLR0915", # Too many statements
-    "PLR0917", # Too many positional arguments
-    "PLR2004", # Magic value used in comparison
-    "PLR6104", # Consider using `x += y` instead of `x = x + y`
-    "N806",    # Variable names should be lowercase
-    "N812",    # Lowercase imported as non-lowercase
-    "RET504",  # Unnecessary assign
+  "PLR0913", # Too many arguments to function call
+  "PLR0914", # Too many local variables
+  "PLR0915", # Too many statements
+  "PLR0917", # Too many positional arguments
+  "PLR2004", # Magic value used in comparison
+  "PLR6104", # Consider using `x += y` instead of `x = x + y`
+  "N806",    # Variable names should be lowercase
+  "N812",    # Lowercase imported as non-lowercase
+  "RET504",  # Unnecessary assign
 
-    # Docstring exceptions for private methods and __init__
-    "D100",    # Missing docstring in public module
-    "D101",    # Missing docstring in public class (allow for simple classes)
-    "D104",    # Missing docstring in public package
-    "D105",    # Missing docstring in magic method
+  # Docstring exceptions for private methods and __init__
+  "D100", # Missing docstring in public module
+  "D101", # Missing docstring in public class (allow for simple classes)
+  "D104", # Missing docstring in public package
+  "D105", # Missing docstring in magic method
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -85,14 +82,14 @@ ignore = [
 
 # Test file specific ignores
 "**/test_*.py" = [
-    "ARG001",  # Unused function argument
-    "ARG002",  # Unused method argument
-    "D100",    # Missing docstring in public module
-    "D101",    # Missing docstring in public class
-    "D102",    # Missing docstring in public method
-    "D103",    # Missing docstring in public function
-    "PLR6301", # Method could be a function
-    "PLC2701", # Private name import
+  "ARG001",  # Unused function argument
+  "ARG002",  # Unused method argument
+  "D100",    # Missing docstring in public module
+  "D101",    # Missing docstring in public class
+  "D102",    # Missing docstring in public method
+  "D103",    # Missing docstring in public function
+  "PLR6301", # Method could be a function
+  "PLC2701", # Private name import
 ]
 
 [tool.ruff.lint.isort]
@@ -109,6 +106,4 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
-exclude = [
-    ".venv/**",
-]
+exclude = [".venv/**"]

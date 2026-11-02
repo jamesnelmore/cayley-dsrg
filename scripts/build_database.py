@@ -5,6 +5,9 @@ of `nNNN.csv` shards (see data2/ for an example). The database follows
 data/schema.sql. The derived tables (groups, group_param, graphs) and every
 `digraph6` are recomputed from scratch via GAP rather than read from a CSV.
 
+If `<data_dir>/logs/` exists (see scripts/extract_hpc_logs.py), its run-log
+extracts are loaded into the ilp_solves, rrhc_best_error and rrhc_task_times tables.
+
 Usage: build_database.py <data_dir>   ->   writes <data_dir>/dpds.sqlite
 """
 
@@ -47,6 +50,7 @@ GpRow = tuple[int, int]
 GraphRow = tuple[int, str, int, int, str, int, int, int, int]
 DpdsRow = tuple[int, int, str, str, str, int]
 SearchRow = tuple[int, int, str, str, int, int, int]
+LogTables = dict[str, list[tuple]]
 
 # --- GAP drivers ------------------------------------------------------------
 # Templated with {inf} (input path); literal braces are doubled for str.format.
@@ -252,6 +256,35 @@ def assemble_graphs(
     return order, gid, pid, n_of, ndpds, groups
 
 
+def read_logs(d: Path, key2pid: dict[Key, int], gid_of: dict[Group, int]) -> LogTables:
+    """Rows for the run-log tables from <d>/logs/*.csv (empty if absent)."""
+    out: LogTables = {"ilp_solves": [], "rrhc_best_error": [], "rrhc_task_times": []}
+    logs = d / "logs"
+
+    def rows(name: str) -> list[dict[str, str]]:
+        f = logs / f"{name}.csv"
+        if not f.exists():
+            return []
+        with open(f, newline="") as fh:
+            return list(csv.DictReader(fh))
+
+    def pid(r: dict[str, str]) -> int:
+        return key2pid[(r["n"], r["k"], r["t"], r["lambda"], r["mu"])]
+
+    def gid(r: dict[str, str]) -> int:
+        return gid_of[(int(r["n"]), int(r["lib_id"]))]
+
+    for r in rows("ilp_solves"):
+        out["ilp_solves"].append((gid(r), pid(r), r["method"], r["status"], float(r["seconds"])))
+    for r in rows("rrhc_best_error"):
+        out["rrhc_best_error"].append((gid(r), pid(r), r["method"], int(r["best_error"])))
+    for r in rows("rrhc_task_times"):
+        out["rrhc_task_times"].append(
+            (pid(r), r["method"], int(r["num_groups"]), int(r["elapsed_s"]), int(r["ncpus"]))
+        )
+    return out
+
+
 def build_db(
     dbpath: Path,
     params: list[ParamRow],
@@ -260,6 +293,7 @@ def build_db(
     graphs_rows: list[GraphRow],
     dpds_rows: list[DpdsRow],
     search_rows: list[SearchRow],
+    log_rows: LogTables,
 ) -> None:
     if dbpath.exists():
         dbpath.unlink()
@@ -279,6 +313,9 @@ def build_db(
         "VALUES (?,?,?,?,?,?,?)",
         search_rows,
     )
+    con.executemany("INSERT INTO ilp_solves VALUES (?,?,?,?,?)", log_rows["ilp_solves"])
+    con.executemany("INSERT INTO rrhc_best_error VALUES (?,?,?,?)", log_rows["rrhc_best_error"])
+    con.executemany("INSERT INTO rrhc_task_times VALUES (?,?,?,?,?)", log_rows["rrhc_task_times"])
     con.commit()
     con.close()
 
@@ -350,8 +387,11 @@ def main() -> None:
         for (n, lib, pid, m, o, nd) in searches
     ]
 
+    log_rows = read_logs(d, key2pid, gid_of)
+    log("      run logs: " + ", ".join(f"{k} {len(v)}" for k, v in log_rows.items()))
+
     log(f"[5/5] Writing {dbpath} …")
-    build_db(dbpath, params, groups_rows, gp_rows, graphs_rows, dpds_rows, search_rows)
+    build_db(dbpath, params, groups_rows, gp_rows, graphs_rows, dpds_rows, search_rows, log_rows)
     print(
         f"Wrote {dbpath}: {len(params)} params, {len(groups_rows)} groups, "
         f"{len(order)} graphs, {len(cons)} dpds, {len(searches)} searches"

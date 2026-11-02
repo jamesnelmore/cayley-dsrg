@@ -103,3 +103,6 @@ Thumbs.db
 srg_*.json
 # ILP sweep outputs: dpds/searches CSVs and slurm logs.
 ilp-out/
+
+# Raw cluster pulls (ingested into data/)
+hpc-pull/
