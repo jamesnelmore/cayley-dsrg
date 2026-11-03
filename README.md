@@ -19,21 +19,18 @@ Nearly all constructions, including at least one construction for every new para
 The ILP was primarily useful for proving infeasibility.
 
 Of the 549 open parameter sets we checked, we **construct 59** and prove **86 have no Cayley graph construction**.
-Of these, 26 construction results were found in parallel with [dualverse-ai](https://github.com/dualverse-ai/strong_regular_graph).
+Of these, 26 construction results were found in parallel with [Wesley & Chung](https://github.com/dualverse-ai/strong_regular_graph), and two were found in parallel with [Gyürki & Klin](https://arxiv.org/abs/2608.16202).
 
 In the following tables,
-
 - **Groups** is the number of nonabelian groups which have a connection set generating the graph,
 - **SmallGroup(n,i)** is one representative group's GAP ID, and
 - **Connection Set** is the list of indices of elements in that group forming the connection set.
 
-## Table 1 — Novel constructions (33)
+## Table 1 — Novel constructions (31)
 | parameters (n,k,t,λ,μ) | Groups | SmallGroup(n, i) | Connection Set |
 |---|---:|---|---|
 | (48,19,14,5,9) | 1 | (48, 29) | 2 8 10 15 16 18 19 24 27 29 31 32 35 36 37 42 44 45 47 |
 | (48,22,17,11,9) | 1 | (48, 29) | 2 3 4 5 6 8 9 10 11 17 18 22 23 25 30 33 34 35 36 40 44 47 |
-| (72,16,11,5,3) | 3 | (72, 23) | 4 6 8 15 17 18 20 27 34 41 43 49 54 58 63 70 |
-| (72,22,14,8,6) | 11 | (72, 21) | 4 6 11 15 18 22 23 24 25 26 29 30 31 34 35 36 37 38 63 64 70 72 |
 | (78,27,13,8,10) | 1 | (78, 1) | 3 5 7 8 10 11 12 14 21 26 35 37 38 39 42 43 46 48 49 52 63 64 65 69 76 77 78 |
 | (81,38,34,15,20) | 4 | (81, 3) | 4 6 8 11 12 13 16 17 20 22 23 24 36 40 41 42 43 45 51 52 54 55 56 57 58 59 61 63 64 66 67 69 72 75 76 77 80 81 |
 | (84,25,11,6,8) | 1 | (84, 11) | 3 16 18 22 24 29 32 33 36 37 38 45 49 53 54 57 58 65 69 73 77 80 81 83 84 |
@@ -64,7 +61,7 @@ In the following tables,
 | (108,32,18,8,10) | 5 | (108, 8) | 7 9 12 18 20 21 24 29 30 38 42 48 54 55 56 57 62 63 64 68 70 71 76 79 80 81 86 87 90 95 96 98 |
 | (108,33,19,10,10) | 3 | (108, 11) | 3 12 15 16 21 22 24 25 27 28 35 36 39 41 43 48 54 55 58 63 64 66 71 72 74 76 79 85 91 100 104 106 108 |
 
-## Table 2 — Constructed in Parallel with DualverseAI (26)
+## Table 2 — Constructed in Parallel with [Wesley & Chung](https://github.com/dualverse-ai/strong_regular_graph) (26)
 | parameters (n,k,t,λ,μ) | groups | SmallGroup(n, i) | Connection Set |
 |---|---:|---|---|
 | (56,25,15,10,12) | 1 | (56, 11) | 6 7 15 17 19 20 22 25 28 29 31 32 33 34 35 36 41 45 46 49 50 51 52 53 55 |
@@ -93,6 +90,12 @@ In the following tables,
 | (108,34,13,10,11) | 1 | (108, 15) | 2 5 7 8 9 12 13 14 15 16 18 20 21 24 29 30 31 33 34 35 43 48 50 54 55 63 68 70 74 77 82 92 96 103 |
 | (108,37,19,10,14) | 6 | (108, 8) | 3 4 8 9 12 13 19 24 26 28 30 31 38 39 42 44 46 49 56 60 65 66 70 71 76 77 81 82 84 87 88 89 91 96 98 103 106 |
 | (108,52,32,26,24) | 6 | (108, 28) | 4 5 6 7 10 11 12 14 16 18 19 22 24 28 31 32 35 37 41 46 47 48 49 51 52 57 59 61 62 63 66 68 70 73 76 77 78 81 84 87 88 91 93 95 97 98 99 100 101 102 105 108 |
+
+## Table 3 — Constructed in Parallel with [Gyürki & Klin](https://arxiv.org/abs/2608.16202) (2)
+| parameters (n,k,t,λ,μ) | groups | SmallGroup(n, i) | Connection Set |
+|---|---:|---|---|
+| (72,16,11,5,3) | 3 | (72, 23) | 4 6 8 15 17 18 20 27 34 41 43 49 54 58 63 70 |
+| (72,22,14,8,6) | 11 | (72, 21) | 4 6 11 15 18 22 23 24 25 26 29 30 31 34 35 36 37 38 63 64 70 72 |
 
 ## Nonexistence — parameter sets with no nonabelian Cayley DSRG (86)
 For each of the following, an Integer Linear Program run with Gurobi proves that **no** group of order n admits a directed partial difference set with those
