@@ -11,8 +11,8 @@ S \cdot S = t \cdot e + \lambda \cdot S + \mu \cdot (G - e - S)
 ```
 in the group ring.
 
-Parameter sets come from the [Hobart & Brouwer](https://homepages.cwi.nl/~aeb/math/dsrg/dsrg.html) DSRG table up to \(n \leq 110 \),
-where \( k \leq n/2 \).
+Parameter sets come from [Hobart & Brouwer](https://homepages.cwi.nl/~aeb/math/dsrg/dsrg.html)'s DSRG table up to $n \leq 110$,
+where $k \leq n/2$.
 
 Searches are conducted via a greedly local search algorithm with random restarts (random-restart hillclimbing or RRHC) and Integer Linear Programs (ILPs).
 Nearly all constructions, including at least one construction for every new parameter set realized, were found with RRHC.
