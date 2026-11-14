@@ -2,6 +2,8 @@
 
 **James Elmore and Eric Swartz** (College of William & Mary)
 
+Work based on results from an undergraduate honors thesis by James Elmore, advised by Eric Swartz.
+
 ---
 
 We search for $\(n,k,t,\lambda,\mu )$-directed strongly regular graphs (DSRGs) arising as Cayley graphs $\mathrm{Cay}(G,S)$ of **nonabelian** groups $G$. 
